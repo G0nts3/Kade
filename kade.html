@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kade — Studio of Josef Kade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Archivo:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0D0C0A;
+    --ink-2:#161411;
+    --concrete:#A9A29A;
+    --paper:#EDE9E2;
+    --ember:#C7551D;
+    --ember-dim:#7A3714;
+    --graphite:#312D27;
+    --line:#3A362F;
+    --ease:cubic-bezier(0.19,1,0.22,1);
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Archivo', sans-serif;
+    font-weight:300;
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--ember); color:var(--ink); }
+  h1,h2,h3,.display{ font-family:'Bodoni Moda', serif; font-weight:400; }
+  .mono{ font-family:'Space Mono', monospace; letter-spacing:0.06em; text-transform:uppercase; font-size:0.68rem; }
+  a{ color:inherit; text-decoration:none; }
+  img, video{ display:block; width:100%; height:100%; object-fit:cover; }
+
+  /* signature: the ember thread — a vertical light that runs the length of the page,
+     tracking scroll progress, echoing "the one shaft of light he allows in every building" */
+  .ember-thread{
+    position:fixed; top:0; left:0; width:2px; height:100vh; z-index:200;
+    background:var(--line);
+    pointer-events:none;
+  }
+  .ember-thread::after{
+    content:'';
+    position:absolute; top:0; left:0; width:100%;
+    height:var(--progress, 0%);
+    background:linear-gradient(180deg, var(--ember), var(--ember-dim));
+    box-shadow:0 0 12px var(--ember);
+    transition:height 0.1s linear;
+  }
+
+  /* nav */
+  .nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:30px 6vw;
+    mix-blend-mode:difference;
+  }
+  .nav-mark{ font-family:'Bodoni Moda', serif; font-size:1.1rem; letter-spacing:0.02em; }
+  .nav-links{ display:flex; gap:34px; }
+  .nav-links a{ font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; font-family:'Space Mono',monospace; opacity:0.8; transition:opacity 0.3s; }
+  .nav-links a:hover{ opacity:1; }
+
+  /* hero */
+  .hero{
+    position:relative; height:100vh; display:flex; align-items:flex-end;
+    overflow:hidden;
+  }
+  .hero video{ position:absolute; inset:0; filter:grayscale(0.35) contrast(1.08) brightness(0.55); }
+  .hero::before{
+    content:'';
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(13,12,10,0.35) 0%, rgba(13,12,10,0.25) 40%, rgba(13,12,10,0.92) 100%);
+    z-index:1;
+  }
+  .hero-content{ position:relative; z-index:2; padding:0 6vw 90px; max-width:900px; }
+  .hero-eyebrow{ color:var(--ember); margin-bottom:22px; display:block; opacity:0; animation:rise 1.4s var(--ease) 0.3s forwards; }
+  .hero h1{
+    font-size:clamp(2.4rem, 6.4vw, 5.4rem);
+    line-height:1.05;
+    font-style:italic;
+    opacity:0; animation:rise 1.6s var(--ease) 0.5s forwards;
+  }
+  .hero p{
+    margin-top:26px; max-width:44ch; color:var(--concrete); line-height:1.8; font-size:1rem;
+    opacity:0; animation:rise 1.6s var(--ease) 0.9s forwards;
+  }
+  @keyframes rise{ from{ opacity:0; transform:translateY(22px); } to{ opacity:1; transform:translateY(0); } }
+
+  section{ position:relative; }
+  .reveal{ opacity:0; transform:translateY(24px); filter:blur(4px); transition:opacity 1s var(--ease), transform 1s var(--ease), filter 1s var(--ease); }
+  .reveal.in{ opacity:1; transform:translateY(0); filter:blur(0); }
+
+  /* the rule */
+  .rule{
+    padding:160px 6vw; display:flex; justify-content:center;
+    background:var(--ink);
+  }
+  .rule blockquote{
+    max-width:820px; text-align:center;
+    font-family:'Bodoni Moda', serif; font-style:italic;
+    font-size:clamp(1.6rem, 3.4vw, 2.6rem); line-height:1.4;
+  }
+  .rule blockquote span{ color:var(--ember); }
+  .rule cite{ display:block; margin-top:34px; font-style:normal; color:var(--concrete); }
+
+  /* works */
+  .works{ padding:60px 6vw 140px; }
+  .section-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:56px; flex-wrap:wrap; gap:16px; }
+  .section-head .mono{ color:var(--ember); }
+  .section-head h2{ font-size:clamp(1.8rem,3.4vw,2.8rem); font-style:italic; margin-top:10px; }
+  .work-count{ color:var(--concrete); font-size:0.85rem; text-align:right; }
+
+  .work-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:4px; }
+  .work-card{
+    position:relative; aspect-ratio:4/5; overflow:hidden; cursor:pointer;
+  }
+  .work-card:first-child{ grid-column:span 2; grid-row:span 2; aspect-ratio:auto; }
+  .work-card img{ transition:transform 1.4s var(--ease), filter 1.4s var(--ease); filter:grayscale(0.5) contrast(1.05); }
+  .work-card:hover img{ transform:scale(1.06); filter:grayscale(0) contrast(1.1); }
+  .work-card-overlay{
+    position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-end; padding:24px;
+    background:linear-gradient(180deg, transparent 40%, rgba(13,12,10,0.88) 100%);
+  }
+  .work-card-overlay .mono{ color:var(--ember); margin-bottom:8px; }
+  .work-card-overlay h3{ font-size:1.2rem; font-style:italic; }
+  .work-card-overlay p{ font-size:0.8rem; color:var(--concrete); margin-top:8px; max-width:34ch; line-height:1.6; }
+
+  /* notebook */
+  .notebook{ background:var(--ink-2); padding:140px 6vw; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .notebook-head{ max-width:600px; margin-bottom:70px; }
+  .notebook-head h2{ font-size:clamp(1.8rem,3.4vw,2.8rem); font-style:italic; margin-top:10px; }
+  .notebook-head p{ color:var(--concrete); margin-top:18px; line-height:1.8; }
+
+  .entries{ display:grid; grid-template-columns:repeat(3,1fr); gap:2px; background:var(--line); }
+  .entry{ background:var(--ink-2); padding:38px 32px; position:relative; }
+  .entry .mono{ color:var(--ember); display:block; margin-bottom:18px; }
+  .entry p{ font-family:'Bodoni Moda', serif; font-style:italic; font-size:1.08rem; line-height:1.65; color:var(--paper); }
+  .entry .tag{ margin-top:22px; color:var(--concrete); font-size:0.72rem; font-family:'Space Mono',monospace; }
+
+  /* method */
+  .method{ padding:140px 6vw; }
+  .method-grid{ display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+  .method-media{ aspect-ratio:4/5; overflow:hidden; position:relative; }
+  .method-media img{ filter:grayscale(0.4) contrast(1.05); }
+  .method-text .mono{ color:var(--ember); }
+  .method-text h2{ font-size:clamp(1.8rem,3.4vw,2.6rem); font-style:italic; margin:14px 0 26px; }
+  .method-text p{ color:var(--concrete); line-height:1.85; margin-bottom:16px; max-width:46ch; }
+  .method-list{ margin-top:30px; display:flex; flex-direction:column; gap:16px; }
+  .method-list-item{ display:flex; gap:18px; align-items:baseline; padding-bottom:16px; border-bottom:1px solid var(--line); }
+  .method-list-item .mono{ min-width:70px; }
+  .method-list-item span{ color:var(--paper); font-size:0.95rem; }
+
+  /* access */
+  .access{
+    padding:160px 6vw; text-align:center;
+    background:
+      radial-gradient(ellipse 50% 60% at 50% 0%, rgba(199,85,29,0.09), transparent 70%),
+      var(--ink);
+    border-top:1px solid var(--line);
+  }
+  .access .mono{ color:var(--ember); justify-content:center; display:flex; }
+  .access h2{ font-size:clamp(2rem,4.2vw,3.4rem); font-style:italic; max-width:18ch; margin:20px auto 30px; line-height:1.25; }
+  .access p{ color:var(--concrete); max-width:56ch; margin:0 auto 46px; line-height:1.85; }
+  .btn{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:17px 38px; border:1px solid var(--ember);
+    font-family:'Space Mono',monospace; font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase;
+    position:relative; overflow:hidden;
+  }
+  .btn::before{ content:''; position:absolute; inset:0; background:var(--ember); transform:scaleX(0); transform-origin:left; transition:transform 0.6s var(--ease); z-index:-1; }
+  .btn:hover::before{ transform:scaleX(1); }
+  .btn:hover{ color:var(--ink); }
+  .access-note{ margin-top:26px; color:var(--graphite); font-size:0.78rem; }
+
+  footer{
+    padding:70px 6vw; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:30px;
+    border-top:1px solid var(--line);
+  }
+  footer .mono{ color:var(--concrete); }
+  .footer-meta{ text-align:right; color:var(--concrete); font-size:0.78rem; line-height:2; font-family:'Space Mono',monospace; }
+
+  @media (max-width:900px){
+    .work-grid, .entries{ grid-template-columns:1fr; }
+    .work-card:first-child{ grid-column:auto; grid-row:auto; aspect-ratio:4/5; }
+    .method-grid{ grid-template-columns:1fr; gap:40px; }
+    .nav-links{ display:none; }
+    footer{ flex-direction:column; align-items:flex-start; }
+    .footer-meta{ text-align:left; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+    .reveal{ opacity:1; filter:none; transform:none; }
+    .hero video{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="ember-thread" id="emberThread"></div>
+
+  <nav class="nav">
+    <span class="nav-mark">Kade</span>
+    <div class="nav-links">
+      <a href="#works">Works</a>
+      <a href="#notebook">Notebook</a>
+      <a href="#method">Method</a>
+      <a href="#access">Access</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <video autoplay muted loop playsinline poster="https://images.pexels.com/videos/6076828/3drender-abstract-background-architectural-building-architectural-design-6076828.jpeg?auto=compress&cs=tinysrgb&w=1920">
+      <source src="https://videos.pexels.com/video-files/6076828/6076828-uhd_2560_1440_30fps.mp4" type="video/mp4">
+    </video>
+    <div class="hero-content">
+      <span class="hero-eyebrow mono">Studio of Josef Kade — Est. 1994</span>
+      <h1>"I do not design rooms.<br>I design what the light is forced to do<br>once it enters them."</h1>
+      <p>Nineteen buildings in thirty years. No renders. No interviews since 2006. Every commission begins with a single question he will not answer twice.</p>
+    </div>
+  </section>
+
+  <!-- THE RULE -->
+  <section class="rule">
+    <blockquote class="reveal">
+      "A building that flatters its owner has failed them.
+      <span>My work is not for comfort.</span>
+      It is for the one true hour of light a room receives each day —
+      and everything a person does in the other twenty-three."
+      <cite class="mono">— J. Kade, private notebook, undated</cite>
+    </blockquote>
+  </section>
+
+  <!-- WORKS -->
+  <section class="works" id="works">
+    <div class="section-head reveal">
+      <div>
+        <span class="mono">Commissions</span>
+        <h2>Nineteen buildings.<br>No two admit the same light.</h2>
+      </div>
+      <div class="work-count mono">01 — 19<br>Selected</div>
+    </div>
+
+    <div class="work-grid reveal">
+      <div class="work-card">
+        <img src="https://images.pexels.com/photos/32191170/pexels-photo-32191170.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Brutalist concrete facade with sharp shadow lines">
+        <div class="work-card-overlay">
+          <span class="mono">Commission No. 07</span>
+          <h3>The House That Refuses Morning</h3>
+          <p>Every east-facing wall is solid. He built it for a client who wanted to wake up in the dark, on purpose.</p>
+        </div>
+      </div>
+      <div class="work-card">
+        <img src="https://images.pexels.com/photos/33514996/pexels-photo-33514996.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Black and white modern concrete architecture">
+        <div class="work-card-overlay">
+          <span class="mono">No. 11</span>
+          <h3>The Long Corridor</h3>
+        </div>
+      </div>
+      <div class="work-card">
+        <img src="https://images.pexels.com/photos/12246538/pexels-photo-12246538.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Concrete stairs inside a glass atrium with sunlight">
+        <div class="work-card-overlay">
+          <span class="mono">No. 03</span>
+          <h3>The Atrium of Complaint</h3>
+        </div>
+      </div>
+      <div class="work-card">
+        <img src="https://images.pexels.com/photos/28849123/pexels-photo-28849123.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Black and white modern brutalist building with strong shadows">
+        <div class="work-card-overlay">
+          <span class="mono">No. 14</span>
+          <h3>The Wall With No Door</h3>
+        </div>
+      </div>
+      <div class="work-card">
+        <img src="https://images.pexels.com/photos/35575627/pexels-photo-35575627.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Black and white modern architecture, striking perspective">
+        <div class="work-card-overlay">
+          <span class="mono">No. 16</span>
+          <h3>The Second Refusal</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTEBOOK -->
+  <section class="notebook" id="notebook">
+    <div class="notebook-head reveal">
+      <span class="mono">The Notebook</span>
+      <h2>He has never given an interview. These are not interviews.</h2>
+      <p>Fragments recovered from thirty years of private notebooks, published only because a client insisted the wall text at Commission No. 07 was "too quiet to be useful."</p>
+    </div>
+    <div class="entries reveal">
+      <div class="entry">
+        <span class="mono">Notebook IV, p.61</span>
+        <p>"A client asked for more windows today. I gave her one, and told her where to stand at 4 o'clock.  She has not asked for a second."</p>
+        <div class="tag">ON CLIENTS</div>
+      </div>
+      <div class="entry">
+        <span class="mono">Notebook VII, p.14</span>
+        <p>"I no longer draw with the computer in the room. It suggests things. I do not want to be handed a wall. I want to fight for one."</p>
+        <div class="tag">ON METHOD</div>
+      </div>
+      <div class="entry">
+        <span class="mono">Notebook II, p.203</span>
+        <p>"Concrete does not lie about its age. This is the only material I have ever trusted completely."</p>
+        <div class="tag">ON MATERIAL</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- METHOD -->
+  <section class="method" id="method">
+    <div class="method-grid">
+      <div class="method-media reveal">
+        <img src="https://images.pexels.com/photos/271667/pexels-photo-271667.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Hand-drawn architectural floor plan blueprint">
+      </div>
+      <div class="method-text reveal">
+        <span class="mono">The Method</span>
+        <h2>Everything begins on paper he cuts himself.</h2>
+        <p>No commission is drawn digitally until the final permit set. Every building starts as a graphite section, redrawn by hand — by Kade alone — an average of forty-one times before a single wall is costed.</p>
+        <p>Clients are not shown renders. They are shown one physical model, lit by a single bulb, in a room he chooses.</p>
+        <div class="method-list">
+          <div class="method-list-item"><span class="mono">STAGE 01</span><span>The site is visited only at the hour the client least expects.</span></div>
+          <div class="method-list-item"><span class="mono">STAGE 02</span><span>A single section is drawn before a single plan exists.</span></div>
+          <div class="method-list-item"><span class="mono">STAGE 03</span><span>The model is built at 1:50, in raw materials, never painted.</span></div>
+          <div class="method-list-item"><span class="mono">STAGE 04</span><span>Construction is supervised in person, every week, without exception.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACCESS -->
+  <section class="access" id="access">
+    <span class="mono reveal">Access</span>
+    <h2 class="reveal">He accepts one commission a year.</h2>
+    <p class="reveal">There is no proposal process. Write to the studio. Describe the site, not the building you imagine. He will decide within one month whether the site deserves him.</p>
+    <a href="#" class="btn reveal">Write to the Studio</a>
+    <div class="access-note reveal mono">Next available commission: 2028</div>
+  </section>
+
+  <footer>
+    <span class="mono">Kade — Studio of Josef Kade</span>
+    <div class="footer-meta">
+      Founded 1994<br>
+      Nineteen commissions, one at a time<br>
+      By written enquiry only
+    </div>
+  </footer>
+
+<script>
+  // ember thread — tracks scroll progress
+  const thread = document.getElementById('emberThread');
+  function updateThread(){
+    const scrolled = window.scrollY;
+    const max = document.body.scrollHeight - window.innerHeight;
+    const pct = max > 0 ? (scrolled / max) * 100 : 0;
+    thread.style.setProperty('--progress', pct + '%');
+  }
+  window.addEventListener('scroll', updateThread, { passive:true });
+  updateThread();
+
+  // scroll reveal
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold:0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
